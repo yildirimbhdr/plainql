@@ -154,3 +154,6 @@ PROGRESS.md
 scratch.mts
 
 scratch.*.mts
+
+# local security playground
+playground.ts

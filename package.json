@@ -15,7 +15,8 @@
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
     "test": "vitest",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "play": "tsx playground.ts"
   },
   "files": [
     "dist"
@@ -42,6 +43,7 @@
     "@anthropic-ai/sdk": "^0.126.0",
     "better-sqlite3": "^12.11.1",
     "mysql2": "^3.24.4",
+    "node-sql-parser": "^5.4.0",
     "pg": "^8.23.0"
   }
 }
