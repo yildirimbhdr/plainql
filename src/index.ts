@@ -1,3 +1,5 @@
-export {PlainQL} from "./client";
-export { defineConfig } from "./config/define";
-export type { PlainQLConfig, AIConfig } from "./config/types";
+export { PlainQL } from './client.js'
+export { defineConfig } from './config/define.js'
+export type { PlainQLConfig, AIConfig, TableRule, RoleRule, Operation } from './config/types.js'
+export type { SchemaContext, TableInfo, ColumnInfo, IndexInfo, RelationInfo } from './schema/types.js'
+export { Dialect } from './schema/types.js'

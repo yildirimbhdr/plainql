@@ -1,4 +1,4 @@
-export enum DatabaseType {
+export enum Dialect {
     PostgreSQL = 'postgresql',
     MySQL      = 'mysql',
     SQLite     = 'sqlite'
@@ -36,5 +36,5 @@ export interface RelationInfo {
 export interface SchemaContext {
     tables: TableInfo[]
     relations: RelationInfo[]
-    dialect: DatabaseType
+    dialect: Dialect
 }

@@ -141,3 +141,14 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+# Claude Code working files (kept local; copy manually to other machines)
+CLAUDE.md
+CLAUDE.local.md
+PROGRESS.md
+.claude/
+
+# plainql runtime cache
+.plainql/
+
+# local scratch scripts
+scratch.mts
