@@ -38,6 +38,33 @@ type SqlitePragmaForeignKey = {
     to: string | null
 }
 
+type MysqlTableRow = {
+    name: string
+    row_count: number | string | null
+}
+
+type MysqlColumnRow = {
+    name: string
+    type: string
+    is_nullable: 'YES' | 'NO'
+    column_key: string
+    default_value: string | null
+}
+
+type MysqlIndexRow = {
+    index_name: string
+    non_unique: 0 | 1
+    seq: number
+    column_name: string
+}
+
+type MysqlForeignKeyRow = {
+    from_table: string
+    from_column: string
+    to_table: string
+    to_column: string
+}
+
 
 export class SchemaIntrospector {
 
@@ -250,10 +277,84 @@ export class SchemaIntrospector {
     // #region MySQL
 
     private async fetchMysqlTables(): Promise<TableInfo[]> {
-        throw new Error('SchemaIntrospector: MySQL introspection not implemented yet')
+        const rows = await this.execute(
+            `SELECT TABLE_NAME AS name, TABLE_ROWS AS row_count
+             FROM information_schema.TABLES
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE'
+             ORDER BY TABLE_NAME`
+        ) as MysqlTableRow[]
+
+        const tables: TableInfo[] = []
+        for (const row of rows) {
+            const columns = await this.fetchMysqlColumns(row.name)
+            const indexes = await this.fetchMysqlIndexes(row.name)
+            tables.push({ name: row.name, columns, indexes, rowCount: Number(row.row_count ?? 0) })
+        }
+        return tables
     }
-    private async fetchMysqlRelations():Promise<RelationInfo[]>{
-        throw new Error('SchemaIntrospector: MySQL introspection not implemented yet')
+
+    private async fetchMysqlColumns(tableName: string): Promise<ColumnInfo[]> {
+        const rows = await this.execute(
+            `SELECT COLUMN_NAME AS name, COLUMN_TYPE AS type, IS_NULLABLE AS is_nullable,
+                    COLUMN_KEY AS column_key, COLUMN_DEFAULT AS default_value
+             FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?
+             ORDER BY ORDINAL_POSITION`,
+            [tableName]
+        ) as MysqlColumnRow[]
+
+        const columns: ColumnInfo[] = []
+        for (const row of rows) {
+            const isPrimary = row.column_key === 'PRI'
+            columns.push({
+                name: row.name,
+                type: row.type,
+                nullable: row.is_nullable === 'YES',
+                isPrimary,
+                isUnique: isPrimary || row.column_key === 'UNI',
+                defaultValue: row.default_value,
+            })
+        }
+        return columns
+    }
+
+    private async fetchMysqlIndexes(tableName: string): Promise<IndexInfo[]> {
+        const rows = await this.execute(
+            `SELECT INDEX_NAME AS index_name, NON_UNIQUE AS non_unique,
+                    SEQ_IN_INDEX AS seq, COLUMN_NAME AS column_name
+             FROM information_schema.STATISTICS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?
+             ORDER BY INDEX_NAME, SEQ_IN_INDEX`,
+            [tableName]
+        ) as MysqlIndexRow[]
+
+        const byName = new Map<string, IndexInfo>()
+        for (const row of rows) {
+            let index = byName.get(row.index_name)
+            if (!index) {
+                index = { name: row.index_name, columns: [], isUnique: Number(row.non_unique) === 0 }
+                byName.set(row.index_name, index)
+            }
+            index.columns.push(row.column_name)
+        }
+        return [...byName.values()]
+    }
+
+    private async fetchMysqlRelations(): Promise<RelationInfo[]> {
+        const rows = await this.execute(
+            `SELECT TABLE_NAME AS from_table, COLUMN_NAME AS from_column,
+                    REFERENCED_TABLE_NAME AS to_table, REFERENCED_COLUMN_NAME AS to_column
+             FROM information_schema.KEY_COLUMN_USAGE
+             WHERE TABLE_SCHEMA = DATABASE() AND REFERENCED_TABLE_NAME IS NOT NULL
+             ORDER BY TABLE_NAME, CONSTRAINT_NAME, ORDINAL_POSITION`
+        ) as MysqlForeignKeyRow[]
+
+        return rows.map((row) => ({
+            fromTable: row.from_table,
+            fromColumn: row.from_column,
+            toTable: row.to_table,
+            toColumn: row.to_column,
+        }))
     }
 
     // #endregion

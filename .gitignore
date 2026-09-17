@@ -152,3 +152,5 @@ PROGRESS.md
 
 # local scratch scripts
 scratch.mts
+
+scratch.*.mts
