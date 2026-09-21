@@ -1,0 +1,89 @@
+{
+  "name": "plainql",
+  "version": "0.1.0",
+  "description": "Policy-enforced natural-language SQL for Node.js: an LLM writes the query, a 4-layer validator decides what may run.",
+  "license": "MIT",
+  "author": "yildirimbhdr",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yildirimbhdr/plainql.git"
+  },
+  "homepage": "https://github.com/yildirimbhdr/plainql#readme",
+  "bugs": {
+    "url": "https://github.com/yildirimbhdr/plainql/issues"
+  },
+  "keywords": [
+    "sql",
+    "ai",
+    "llm",
+    "natural language",
+    "text-to-sql",
+    "database",
+    "postgres",
+    "mysql",
+    "sqlite",
+    "security",
+    "guardrails",
+    "claude",
+    "anthropic"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "plainql": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run lint && npm test && npm run build"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.126.0",
+    "node-sql-parser": "^5.4.0"
+  },
+  "peerDependencies": {
+    "pg": ">=8",
+    "mysql2": ">=3",
+    "better-sqlite3": ">=9"
+  },
+  "peerDependenciesMeta": {
+    "pg": {
+      "optional": true
+    },
+    "mysql2": {
+      "optional": true
+    },
+    "better-sqlite3": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^22.20.3",
+    "@types/pg": "^8.23.1",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11",
+    "pg": "^8.23.0",
+    "mysql2": "^3.24.4",
+    "better-sqlite3": "^12.11.1"
+  }
+}
