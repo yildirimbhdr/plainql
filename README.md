@@ -14,6 +14,18 @@ plainql is for the moment you have to let a model — a chat feature, an interna
 
 > Status: **0.1 — early.** The security model and config shape are stable; the AI provider surface is Anthropic-only for now. Read [Limits](#limits) before putting it in front of untrusted users.
 
+## Why plainql
+
+Text-to-SQL is easy to demo and hard to ship: the model is right most of the time, and the rest of the time it reads `password_hash`, forgets the `WHERE`, or drops a table. Hosted "chat with your database" products solve this behind a UI you cannot embed; agent frameworks hand the model a raw connection. plainql is the piece in between — a library-level policy you own, in your repo, enforced in-process, whichever model writes the SQL.
+
+Use it when:
+
+- **An AI agent needs your database** — Claude Code, a custom tool-using agent, an MCP server — and you want a declared policy instead of a read-only user and hope.
+- **A product feature lets people ask questions** — an admin panel, a support console, a Slack bot for the ops team — and every answer must respect roles, hidden columns and row caps.
+- **You want the SQL generated once and reviewed** — `config.queries` and `preview()` give you model-written SQL you can read, cache and ship with zero tokens at runtime.
+
+Don't use it as an ORM replacement: if you know the query, write the query. And don't put it in front of untrusted end users of a multi-tenant app yet — there is no row-level policy (see [Limits](#limits)).
+
 ## Install
 
 ```bash
