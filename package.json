@@ -39,7 +39,7 @@
     }
   },
   "bin": {
-    "plainql": "./dist/cli.js"
+    "plainql": "dist/cli.js"
   },
   "files": [
     "dist",
